@@ -60,7 +60,7 @@
         </div>
     </div>
 
-    <script src="js/main.js"></script>
+    <!-- 只保留一个main.js引用 -->
     <script src="js/main.js"></script>
 </body>
 </html>
