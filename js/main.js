@@ -7,6 +7,7 @@ window.addEventListener('DOMContentLoaded', function() {
 // 全局变量定义
 let dishesData = [];
 
+// 在init函数末尾添加设置按钮的点击事件处理
 function init() {
     // 初始化购物车
     initCart();
@@ -32,6 +33,37 @@ function init() {
             }
         });
     });
+    
+    // 添加设置按钮的点击事件处理
+    const settingsBtn = document.querySelector('.settings-btn');
+    const settingsMenu = document.querySelector('.settings-menu');
+    
+    if (settingsBtn && settingsMenu) {
+        // 点击设置按钮显示/隐藏设置菜单
+        settingsBtn.addEventListener('click', function(e) {
+            e.stopPropagation(); // 阻止事件冒泡
+            settingsMenu.classList.toggle('show');
+        });
+        
+        // 点击设置菜单项的处理
+        document.querySelectorAll('.settings-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const action = this.getAttribute('data-action');
+                if (action === 'recipe') {
+                    window.location.href = 'recipe.html';
+                } else if (action === 'ingredients') {
+                    window.location.href = 'ingredients.html';
+                }
+            });
+        });
+        
+        // 点击页面其他区域关闭设置菜单
+        document.addEventListener('click', function() {
+            if (settingsMenu.classList.contains('show')) {
+                settingsMenu.classList.remove('show');
+            }
+        });
+    }
 }
 
 // 初始化菜品详情弹窗
