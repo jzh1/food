@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小江美食店 - 食材管理</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/ingredients.css">
+</head>
+<body>
+    <!-- 头部信息 -->
+    <header class="header">
+        <div class="logo">
+            <img src="https://picsum.photos/id/292/100/100" alt="小江美食店">
+        </div>
+        <div class="store-info">
+            <h1>食材管理</h1>
+            <p>管理所有食材的详细信息</p>
+        </div>
+        <div class="back-button">
+            <a href="index.php"><i class="fas fa-arrow-left"></i></a>
+        </div>
+    </header>
+
+    <!-- 公告条区域 -->
+    <div class="announcement-container">
+        <!-- 红色：过期食材提示 -->
+        <div class="announcement-bar expired">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span id="expired-count">0</span> 种食材已过期，需要清理
+        </div>
+        <!-- 橙色：临期食材提示 -->
+        <div class="announcement-bar expiring-soon">
+            <i class="fas fa-clock"></i>
+            <span id="expiring-count">0</span> 种食材将在三个月内过期
+        </div>
+        <!-- 绿色：应季食材提示 -->
+        <div class="announcement-bar seasonal">
+            <i class="fas fa-leaf"></i>
+            当前季节推荐食用: <span id="seasonal-ingredients">待确认</span>
+        </div>
+    </div>
+
+    <!-- 搜索功能 -->
+    <div class="search-container">
+        <input type="text" id="ingredient-search" placeholder="搜索食材...">
+        <button id="search-button"><i class="fas fa-search"></i></button>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div class="action-buttons">
+        <button id="add-ingredient-button">
+            <i class="fas fa-plus"></i> 新增食材
+        </button>
+    </div>
+
+    <!-- 食材列表 -->
+    <div class="ingredients-container">
+        <div class="loading">加载中...</div>
+    </div>
+
+    <!-- 新增/编辑食材弹窗 -->
+    <div class="modal" id="ingredient-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">新增食材</h2>
+                <button class="close-modal">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="ingredient-form">
+                    <input type="hidden" id="ingredient-id">
+                    <div class="form-group">
+                        <label for="ingredient-name">食材名称</label>
+                        <input type="text" id="ingredient-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ingredient-category">食材分类</label>
+                        <input type="text" id="ingredient-category" required placeholder="如：蔬菜、肉类、海鲜、主食等">
+                    </div>
+                    <div class="form-group">
+                        <label for="ingredient-weight">重量 (克)</label>
+                        <input type="number" id="ingredient-weight" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ingredient-expiry">有效期</label>
+                        <input type="date" id="ingredient-expiry" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ingredient-description">食材介绍</label>
+                        <textarea id="ingredient-description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>图片</label>
+                        <div class="image-upload-container">
+                            <input type="hidden" id="ingredient-image">
+                            <div class="image-preview" id="image-preview">
+                                <img id="preview-img" src="" alt="预览图片" style="display: none; max-width: 100%; max-height: 200px;">
+                                <div id="preview-placeholder" style="text-align: center; padding: 20px; border: 2px dashed #ccc;">
+                                    <span>暂无图片预览</span>
+                                </div>
+                            </div>
+                            <div class="upload-buttons">
+                                <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                                <button type="button" id="browse-button" class="upload-btn">选择图片</button>
+                                <button type="button" id="upload-button" class="upload-btn" style="display: none;">上传图片</button>
+                                <button type="button" id="remove-image" class="upload-btn" style="display: none;">移除图片</button>
+                            </div>
+                            <div class="image-url-input" style="margin-top: 10px;">
+                                <input type="text" id="image-url-text" placeholder="或直接输入图片URL" style="width: 100%;">
+                                <button type="button" id="apply-url" class="upload-btn">应用URL</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="ingredient-storage">存储方式</label>
+                        <input type="text" id="ingredient-storage" placeholder="如：冷藏、冷冻、常温等">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="cancel-button">取消</button>
+                <button id="save-ingredient-button" class="save-button">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/ingredients.js"></script>
+</body>
+</html>

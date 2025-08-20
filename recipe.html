@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小江美食店 - 菜谱管理</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/recipe.css">
+</head>
+<body>
+    <!-- 头部信息 -->
+    <header class="header">
+        <div class="logo">
+            <img src="https://picsum.photos/id/292/100/100" alt="小江美食店">
+        </div>
+        <div class="store-info">
+            <h1>菜谱管理</h1>
+            <p>管理所有菜品的详细信息</p>
+        </div>
+        <div class="back-button">
+            <a href="index.php"><i class="fas fa-arrow-left"></i></a>
+        </div>
+    </header>
+
+    <!-- 搜索功能 -->
+    <div class="search-container">
+        <input type="text" id="recipe-search" placeholder="搜索菜谱...">
+        <button id="search-button"><i class="fas fa-search"></i></button>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div class="action-buttons">
+        <button id="add-recipe-button">
+            <i class="fas fa-plus"></i> 新增菜谱
+        </button>
+    </div>
+
+    <!-- 菜谱列表 -->
+    <div class="recipes-container">
+        <div class="loading">加载中...</div>
+    </div>
+
+    <!-- 新增/编辑菜谱弹窗 -->
+    <div class="modal" id="recipe-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">新增菜谱</h2>
+                <button class="close-modal">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="recipe-form">
+                    <input type="hidden" id="recipe-id">
+                    <div class="form-group">
+                        <label for="recipe-name">菜品名称</label>
+                        <input type="text" id="recipe-name" required>
+                    </div>
+                    <!-- 修改菜品分类为菜单关联多选 -->
+                    <div class="form-group">
+                        <label>关联菜单（可多选）</label>
+                        <div class="menu-checkboxes">
+                            <label><input type="checkbox" class="menu-checkbox" value="菜谱"> 菜谱</label>
+                            <label><input type="checkbox" class="menu-checkbox" value="果粒爱吃"> 果粒爱吃</label>
+                            <label><input type="checkbox" class="menu-checkbox" value="宁宁爱吃"> 宁宁爱吃</label>
+                            <label><input type="checkbox" class="menu-checkbox" value="小江爱吃"> 小江爱吃</label>
+                            <label><input type="checkbox" class="menu-checkbox" value="外卖"> 外卖</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>菜品分类</label>
+                        <input type="text" id="recipe-category" required placeholder="如：肉类、小炒、凉菜、主食等">
+                    </div>
+                    <div class="form-group">
+                        <label for="recipe-price">价格</label>
+                        <input type="number" id="recipe-price" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="recipe-description">描述</label>
+                        <textarea id="recipe-description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>图片</label>
+                        <div class="image-upload-container">
+                            <input type="hidden" id="recipe-image">
+                            <div class="image-preview" id="image-preview">
+                                <img id="preview-img" src="" alt="预览图片" style="display: none; max-width: 100%; max-height: 200px;">
+                                <div id="preview-placeholder" style="text-align: center; padding: 20px; border: 2px dashed #ccc;">
+                                    <span>暂无图片预览</span>
+                                </div>
+                            </div>
+                            <div class="upload-buttons">
+                                <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                                <button type="button" id="browse-button" class="upload-btn">选择图片</button>
+                                <button type="button" id="upload-button" class="upload-btn" style="display: none;">上传图片</button>
+                                <button type="button" id="remove-image" class="upload-btn" style="display: none;">移除图片</button>
+                            </div>
+                            <div class="image-url-input" style="margin-top: 10px;">
+                                <input type="text" id="image-url-text" placeholder="或直接输入图片URL" style="width: 100%;">
+                                <button type="button" id="apply-url" class="upload-btn">应用URL</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="recipe-rating">评分</label>
+                        <input type="number" id="recipe-rating" step="0.1" min="0" max="5" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="recipe-sales">销量</label>
+                        <input type="number" id="recipe-sales" min="0" required>
+                    </div>
+                    <!-- 在菜谱表单中添加新字段 -->
+                    <div class="form-group">
+                        <label for="recipe-ingredients-ratio">食材用量比例</label>
+                        <textarea id="recipe-ingredients-ratio" placeholder="请输入食材用量比例，例如：
+                    鸡肉 500g
+                    姜片 5片
+                    葱段 2根
+                    酱油 2勺
+                    ..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="recipe-cooking-steps">做法步骤</label>
+                        <textarea id="recipe-cooking-steps" placeholder="请输入详细做法步骤，例如：
+                    1. 鸡肉切块，用盐、料酒腌制15分钟
+                    2. 热锅冷油，放入姜片爆香
+                    3. 加入鸡肉翻炒至变色
+                    ..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="cancel-button">取消</button>
+                <button id="save-recipe-button" class="save-button">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/recipe.js"></script>
+</body>
+</html>
