@@ -175,7 +175,7 @@ function loadDishDetailContent(dishId) {
             if (data.success && data.dish) {
                 const dish = data.dish;
                 
-                // 重置加载状态
+                // 重置加载状态 - 现在包含评论表单
                 dishDetailBody.innerHTML = `
                     <div class="dish-detail-image-container">
                         <img id="dish-detail-image" src="" alt="菜品图片">
@@ -204,6 +204,12 @@ function loadDishDetailContent(dishId) {
                         <div class="dish-detail-section">
                             <h3>用户评论</h3>
                             <div class="reviews-container" id="reviews-container"></div>
+                             
+                            <!-- 添加评论表单 -->
+                            <div class="add-review-form">
+                                <textarea id="review-content" placeholder="请输入您的评论..."></textarea>
+                                <button id="submit-review">提交评论</button>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -273,6 +279,14 @@ function loadDishDetailContent(dishId) {
                 if (addToCartButton) {
                     addToCartButton.setAttribute('data-id', dish.id);
                 }
+                
+                // 重新为提交评论按钮添加事件监听
+                const submitReviewButton = document.getElementById('submit-review');
+                if (submitReviewButton) {
+                    submitReviewButton.addEventListener('click', function() {
+                        submitReview(dish.id);
+                    });
+                }
             } else {
                 dishDetailBody.innerHTML = `<div class="error">${data.error || '加载失败'}</div>`;
             }
@@ -332,13 +346,8 @@ function loadReviews(dishId) {
 }
 
 // 提交评论
-function submitReview() {
+function submitReview(dishId) {
     const reviewContent = document.getElementById('review-content').value.trim();
-    const dishName = document.getElementById('dish-detail-name').textContent;
-    
-    // 从当前URL中解析dish_id
-    const urlParams = new URLSearchParams(window.location.search);
-    const dishId = document.querySelector('.add-to-cart-detail').getAttribute('data-id');
     
     if (!dishId || !reviewContent) {
         showToast('请输入评论内容');
