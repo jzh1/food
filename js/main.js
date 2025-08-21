@@ -162,154 +162,83 @@ function initDishDetail() {
     }
 }
 
-// 增强showDishDetail函数
+// 显示菜品详情
 function showDishDetail(dishId) {
-    // 检查菜品详情弹窗元素是否存在，如果不存在则创建
-    if (!document.querySelector('.dish-detail-overlay')) {
-        initDishDetail();
-        // 给DOM一点时间来创建元素
-        setTimeout(() => {
-            loadDishDetailContent(dishId);
-        }, 100); // 增加延迟时间以确保DOM完全渲染
-        return;
-    }
-    
-    loadDishDetailContent(dishId);
-}
-
-// 加载菜品详情内容的辅助函数
-function loadDishDetailContent(dishId) {
-    // 再次检查元素是否存在
-    const dishDetailOverlay = document.querySelector('.dish-detail-overlay');
+    // 找到菜品详情模态框
+    const dishDetailModal = document.getElementById('dish-detail-modal');
     const dishDetailBody = document.querySelector('.dish-detail-body');
     
-    if (!dishDetailOverlay || !dishDetailBody) {
-        console.error('菜品详情弹窗元素创建失败');
-        alert('无法加载菜品详情，请刷新页面重试');
+    if (!dishDetailModal || !dishDetailBody) {
+        console.error('未找到菜品详情模态框');
         return;
     }
     
     // 显示加载状态
     dishDetailBody.innerHTML = '<div class="loading">加载中...</div>';
     
-    // 显示弹窗
-    dishDetailOverlay.classList.add('active');
+    // 显示模态框
+    dishDetailModal.style.display = 'block';
     
-    // 获取菜品详情
+    // 从API获取菜品详情
     fetch(`api/get_dish_detail.php?id=${dishId}`)
         .then(response => {
             if (!response.ok) {
-                throw new Error('网络响应错误');
+                throw new Error('网络响应错误: ' + response.status);
             }
-            return response.json();
+            
+            // 先尝试获取原始文本，检查是否包含HTML标签
+            return response.text().then(text => {
+                try {
+                    // 尝试解析JSON
+                    return JSON.parse(text);
+                } catch (jsonError) {
+                    // 如果不是有效JSON，抛出包含原始文本的错误
+                    throw new Error('无效的JSON响应: ' + text.substring(0, 100) + '...');
+                }
+            });
         })
         .then(data => {
             if (data.success && data.dish) {
                 const dish = data.dish;
                 
-                // 重置加载状态 - 现在包含评论表单
+                // 显示菜品详情
                 dishDetailBody.innerHTML = `
-                    <div class="dish-detail-image-container">
-                        <img id="dish-detail-image" src="" alt="菜品图片">
-                    </div>
+                    <img src="${dish.image_url || 'https://picsum.photos/id/42/300/200'}" alt="${dish.name}" class="dish-detail-image">
                     <div class="dish-detail-info">
-                        <div class="dish-detail-price" id="dish-detail-price"></div>
+                        <h3>${dish.name}</h3>
+                        <div class="dish-detail-price">¥${parseFloat(dish.price).toFixed(2)}</div>
                         <div class="dish-detail-meta">
-                            <span class="dish-detail-rating" id="dish-detail-rating">评分: </span>
-                            <span class="dish-detail-sales" id="dish-detail-sales">销量: </span>
+                            <span class="dish-detail-rating">评分: ${dish.rating}</span>
+                            <span class="dish-detail-sales">销量: ${dish.sales}</span>
                         </div>
-                        <div class="dish-detail-description" id="dish-detail-description"></div>
-                        
-                        <!-- 食材用量比例 -->
-                        <div class="dish-detail-section">
-                            <h3>食材用量比例</h3>
-                            <pre id="dish-detail-ingredients"></pre>
-                        </div>
-                        
-                        <!-- 做法步骤 -->
-                        <div class="dish-detail-section">
-                            <h3>做法步骤</h3>
-                            <pre id="dish-detail-steps"></pre>
-                        </div>
-                        
-                        <!-- 评论区域 -->
-                        <div class="dish-detail-section">
-                            <h3>用户评论</h3>
-                            <div class="reviews-container" id="reviews-container"></div>
-                             
-                            <!-- 添加评论表单 -->
-                            <div class="add-review-form">
-                                <textarea id="review-content" placeholder="请输入您的评论..."></textarea>
-                                <button id="submit-review">提交评论</button>
-                            </div>
+                        <div class="dish-detail-desc">${dish.description || '暂无描述'}</div>
+                        ${dish.ingredients_ratio ? `<div class="dish-detail-ingredients"><strong>食材用量比例:</strong> ${dish.ingredients_ratio}</div>` : ''}
+                        ${dish.cooking_steps ? `<div class="dish-detail-steps"><strong>做法步骤:</strong> ${dish.cooking_steps}</div>` : ''}
+                        <button class="add-to-cart-detail" data-id="${dish.id}">加入购物车</button>
+                    </div>
+                    <div class="reviews-section">
+                        <h4>用户评论</h4>
+                        <div id="reviews-container"></div>
+                        <div class="review-input-section">
+                            <textarea id="review-content" placeholder="请输入评论..."></textarea>
+                            <button id="submit-review">提交评论</button>
                         </div>
                     </div>
                 `;
                 
-                // 填充菜品详情 - 现在直接设置内部HTML而不是单独查找元素
-                const dishDetailContent = dishDetailOverlay.querySelector('.dish-detail-content');
-                if (dishDetailContent) {
-                    // 菜品名称
-                    const dishNameElement = dishDetailContent.querySelector('#dish-detail-name');
-                    if (dishNameElement) {
-                        dishNameElement.textContent = dish.name;
-                    }
-                    
-                    // 价格
-                    const dishPriceElement = dishDetailBody.querySelector('#dish-detail-price');
-                    if (dishPriceElement) {
-                        dishPriceElement.textContent = `¥${parseFloat(dish.price).toFixed(2)}`;
-                    }
-                    
-                    // 评分
-                    const dishRatingElement = dishDetailBody.querySelector('#dish-detail-rating');
-                    if (dishRatingElement) {
-                        dishRatingElement.textContent = `评分: ${dish.rating}`;
-                    }
-                    
-                    // 销量
-                    const dishSalesElement = dishDetailBody.querySelector('#dish-detail-sales');
-                    if (dishSalesElement) {
-                        dishSalesElement.textContent = `销量: ${dish.sales}`;
-                    }
-                    
-                    // 描述
-                    const dishDescElement = dishDetailBody.querySelector('#dish-detail-description');
-                    if (dishDescElement) {
-                        dishDescElement.textContent = dish.description || '暂无描述';
-                    }
-                    
-                    // 图片
-                    const dishImageElement = dishDetailBody.querySelector('#dish-detail-image');
-                    if (dishImageElement) {
-                        const imageUrl = dish.image_url ? dish.image_url : 'https://picsum.photos/id/42/400/300';
-                        dishImageElement.src = imageUrl;
-                        dishImageElement.alt = dish.name;
-                    }
-                    
-                    // 食材用量比例
-                    const dishIngredientsElement = dishDetailBody.querySelector('#dish-detail-ingredients');
-                    if (dishIngredientsElement) {
-                        dishIngredientsElement.textContent = dish.ingredients_ratio || '暂无食材信息';
-                    }
-                    
-                    // 做法步骤
-                    const dishStepsElement = dishDetailBody.querySelector('#dish-detail-steps');
-                    if (dishStepsElement) {
-                        dishStepsElement.textContent = dish.cooking_steps || '暂无做法步骤';
-                    }
-                    
-                    // 获取并显示评论
-                    const reviewsContainer = dishDetailBody.querySelector('#reviews-container');
-                    if (reviewsContainer) {
-                        loadReviews(dish.id);
-                    }
-                }
-                
-                // 设置加入购物车按钮
+                // 为加入购物车按钮添加点击事件
                 const addToCartButton = document.querySelector('.add-to-cart-detail');
                 if (addToCartButton) {
-                    addToCartButton.setAttribute('data-id', dish.id);
+                    addToCartButton.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        addToCart(this.getAttribute('data-id'));
+                    });
+                }
+                
+                // 获取并显示评论
+                const reviewsContainer = dishDetailBody.querySelector('#reviews-container');
+                if (reviewsContainer) {
+                    loadReviews(dish.id);
                 }
                 
                 // 重新为提交评论按钮添加事件监听
@@ -325,8 +254,24 @@ function loadDishDetailContent(dishId) {
         })
         .catch(error => {
             console.error('加载菜品详情错误:', error);
+            // 显示友好的错误信息，不暴露详细错误
             dishDetailBody.innerHTML = '<div class="error">加载失败，请重试</div>';
         });
+    
+    // 关闭按钮点击事件
+    const closeButton = document.querySelector('.close-dish-detail');
+    if (closeButton) {
+        closeButton.addEventListener('click', function() {
+            dishDetailModal.style.display = 'none';
+        });
+    }
+    
+    // 点击模态框外部关闭
+    window.addEventListener('click', function(e) {
+        if (e.target === dishDetailModal) {
+            dishDetailModal.style.display = 'none';
+        }
+    });
 }
 
 // 加载菜品评论
