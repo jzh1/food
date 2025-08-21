@@ -17,7 +17,6 @@ DROP TABLE IF EXISTS menu_items;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- 创建菜品表
-sql
 CREATE TABLE IF NOT EXISTS dishes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL COMMENT '菜品名称',
@@ -94,7 +93,7 @@ CREATE TABLE IF NOT EXISTS ingredients (
     storage_method VARCHAR(100) COMMENT '存储方式',
     status ENUM('过期', '临期', '正常', '当季推荐') DEFAULT '正常' COMMENT '状态',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    updated_at DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
+    updated_at DATETIME COMMENT '更新时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='食材表';
 
 -- 插入食材测试数据
@@ -130,8 +129,8 @@ CREATE TABLE IF NOT EXISTS orders (
     address VARCHAR(255),
     remark TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+    updated_at DATETIME COMMENT '更新时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='订单主表';
 
 -- 创建订单附表（订单商品表）
 CREATE TABLE IF NOT EXISTS order_items (
@@ -146,7 +145,7 @@ CREATE TABLE IF NOT EXISTS order_items (
     dish_description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='订单商品表';
 
 -- 创建所有必要的索引
 -- 评论表索引
