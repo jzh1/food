@@ -17,7 +17,8 @@ function getDBConnection() {
         );
         return $conn;
     } catch (PDOException $e) {
-        die("数据库连接失败: " . $e->getMessage());
+        // 抛出异常，由调用方处理
+        throw new PDOException("数据库连接失败: " . $e->getMessage(), (int)$e->getCode());
     }
 }
 ?>
