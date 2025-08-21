@@ -17,9 +17,8 @@ function loadEnv($path) {
         $name = trim($name);
         $value = trim($value);
         
-        // 设置环境变量
+        // 设置环境变量（仅使用$_ENV和$_SERVER，不使用putenv）
         if (!array_key_exists($name, $_SERVER) && !array_key_exists($name, $_ENV)) {
-            putenv(sprintf('%s=%s', $name, $value));
             $_ENV[$name] = $value;
             $_SERVER[$name] = $value;
         }
