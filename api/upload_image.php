@@ -53,13 +53,38 @@ if ($file['error'] !== UPLOAD_ERR_OK) {
 
 // 检查文件类型
 $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-// 创建文件信息资源
-$finfo = finfo_open(FILEINFO_MIME_TYPE);
-// 使用finfo_file获取MIME类型
-$fileType = finfo_file($finfo, $file['tmp_name']);
-// 关闭文件信息资源
-finfo_close($finfo);
-if (!in_array($fileType, $allowedTypes)) {
+$allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+$fileType = '';
+$isAllowed = false;
+
+// 尝试使用不同的方法检测文件类型
+if (function_exists('finfo_open')) {
+    try {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $fileType = finfo_file($finfo, $file['tmp_name']);
+        finfo_close($finfo);
+        $isAllowed = in_array($fileType, $allowedTypes);
+    } catch (Exception $e) {
+        // finfo_open失败，回退到扩展名检查
+        $fileExtension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $isAllowed = in_array($fileExtension, $allowedExtensions);
+    }
+} elseif (function_exists('mime_content_type')) {
+    try {
+        $fileType = mime_content_type($file['tmp_name']);
+        $isAllowed = in_array($fileType, $allowedTypes);
+    } catch (Exception $e) {
+        // mime_content_type失败，回退到扩展名检查
+        $fileExtension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $isAllowed = in_array($fileExtension, $allowedExtensions);
+    }
+} else {
+    // 所有高级方法都不可用，只能检查文件扩展名
+    $fileExtension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    $isAllowed = in_array($fileExtension, $allowedExtensions);
+}
+
+if (!$isAllowed) {
     echo json_encode(['success' => false, 'error' => '只允许上传JPG、PNG、GIF和WebP格式的图片']);
     exit;
 }
