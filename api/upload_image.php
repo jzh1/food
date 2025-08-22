@@ -53,7 +53,12 @@ if ($file['error'] !== UPLOAD_ERR_OK) {
 
 // 检查文件类型
 $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-$fileType = mime_content_type($file['tmp_name']);
+// 创建文件信息资源
+$finfo = finfo_open(FILEINFO_MIME_TYPE);
+// 使用finfo_file获取MIME类型
+$fileType = finfo_file($finfo, $file['tmp_name']);
+// 关闭文件信息资源
+finfo_close($finfo);
 if (!in_array($fileType, $allowedTypes)) {
     echo json_encode(['success' => false, 'error' => '只允许上传JPG、PNG、GIF和WebP格式的图片']);
     exit;
