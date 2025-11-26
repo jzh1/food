@@ -182,16 +182,29 @@ function renderRecipes(recipes) {
         const recipeItem = document.createElement('div');
         recipeItem.className = 'recipe-item';
         
+        const price = parseFloat(recipe.price).toFixed(2);
+        const desc = recipe.description || '暂无描述';
+        const ing = recipe.ingredients_ratio ? recipe.ingredients_ratio : '';
+        const steps = recipe.cooking_steps ? recipe.cooking_steps : '';
+        
         recipeItem.innerHTML = `
             <div class="recipe-item-header">
                 <div class="recipe-item-name">${recipe.name}</div>
-                <div class="recipe-item-price">¥${parseFloat(recipe.price).toFixed(2)}</div>
+                <div class="recipe-item-price">¥${price}</div>
             </div>
             <div class="recipe-item-category">分类: ${recipe.category}</div>
-            <div class="recipe-item-desc">${recipe.description || '暂无描述'}</div>
+            <div class="recipe-item-desc">${desc}</div>
             <div class="recipe-item-meta">
                 <span>评分: ${recipe.rating}</span>
                 <span>销量: ${recipe.sales}</span>
+            </div>
+            <div class="recipe-item-ingredients">
+                <div style="font-weight:bold;margin-bottom:6px;">食材用量比例</div>
+                <pre style="white-space:pre-wrap;">${ing || '暂无'}</pre>
+            </div>
+            <div class="recipe-item-steps">
+                <div style="font-weight:bold;margin-bottom:6px;">做法步骤</div>
+                <pre style="white-space:pre-wrap;">${steps || '暂无'}</pre>
             </div>
             <div class="recipe-item-actions">
                 <button class="edit-button" data-id="${recipe.id}">编辑</button>

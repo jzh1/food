@@ -164,20 +164,14 @@ function initDishDetail() {
 
 // 显示菜品详情
 function showDishDetail(dishId) {
-    // 找到菜品详情模态框
-    const dishDetailModal = document.getElementById('dish-detail-modal');
+    const overlay = document.querySelector('.dish-detail-overlay');
     const dishDetailBody = document.querySelector('.dish-detail-body');
-    
-    if (!dishDetailModal || !dishDetailBody) {
+    if (!overlay || !dishDetailBody) {
         console.error('未找到菜品详情模态框');
         return;
     }
-    
-    // 显示加载状态
     dishDetailBody.innerHTML = '<div class="loading">加载中...</div>';
-    
-    // 显示模态框
-    dishDetailModal.style.display = 'block';
+    overlay.classList.add('active');
     
     // 从API获取菜品详情
     fetch(`api/get_dish_detail.php?id=${dishId}`)
@@ -200,36 +194,46 @@ function showDishDetail(dishId) {
         .then(data => {
             if (data.success && data.dish) {
                 const dish = data.dish;
-                
-                // 显示菜品详情
+                const imageUrl = dish.image_url || 'https://picsum.photos/id/42/300/200';
+                const priceText = `¥${parseFloat(dish.price).toFixed(2)}`;
+                const ing = (dish.ingredients_ratio || '').trim();
+                const steps = (dish.cooking_steps || '').trim();
                 dishDetailBody.innerHTML = `
-                    <img src="${dish.image_url || 'https://picsum.photos/id/42/300/200'}" alt="${dish.name}" class="dish-detail-image">
+                    <div class="dish-detail-image-container">
+                        <img id="dish-detail-image" src="${imageUrl}" alt="${dish.name}" class="dish-detail-image">
+                    </div>
                     <div class="dish-detail-info">
                         <h3>${dish.name}</h3>
-                        <div class="dish-detail-price">¥${parseFloat(dish.price).toFixed(2)}</div>
+                        <div class="dish-detail-price">${priceText}</div>
                         <div class="dish-detail-meta">
                             <span class="dish-detail-rating">评分: ${dish.rating}</span>
                             <span class="dish-detail-sales">销量: ${dish.sales}</span>
                         </div>
-                        <div class="dish-detail-desc">${dish.description || '暂无描述'}</div>
-                        ${dish.ingredients_ratio ? `<div class="dish-detail-ingredients"><strong>食材用量比例:</strong> ${dish.ingredients_ratio}</div>` : ''}
-                        ${dish.cooking_steps ? `<div class="dish-detail-steps"><strong>做法步骤:</strong> ${dish.cooking_steps}</div>` : ''}
-                        <button class="add-to-cart-detail" data-id="${dish.id}">加入购物车</button>
+                        <div class="dish-detail-description" id="dish-detail-description">${dish.description || '暂无描述'}</div>
+                        <div class="dish-detail-section">
+                            <h3>食材用量比例</h3>
+                            <pre id="dish-detail-ingredients">${ing || '暂无'}</pre>
+                        </div>
+                        <div class="dish-detail-section">
+                            <h3>做法步骤</h3>
+                            <pre id="dish-detail-steps">${steps || '暂无'}</pre>
+                        </div>
                     </div>
-                    <div class="reviews-section">
-                        <h4>用户评论</h4>
-                        <div id="reviews-container"></div>
-                        <div class="review-input-section">
-                            <textarea id="review-content" placeholder="请输入评论..."></textarea>
+                    <div class="dish-detail-section">
+                        <h3>用户评论</h3>
+                        <div class="reviews-container" id="reviews-container"></div>
+                        <div class="add-review-form">
+                            <textarea id="review-content" placeholder="请输入您的评论..."></textarea>
                             <button id="submit-review">提交评论</button>
                         </div>
                     </div>
                 `;
                 
-                // 为加入购物车按钮添加点击事件
-                const addToCartButton = document.querySelector('.add-to-cart-detail');
-                if (addToCartButton) {
-                    addToCartButton.addEventListener('click', function(e) {
+                // 为底部加入购物车按钮设置菜品ID并添加点击事件
+                const footerAddBtn = document.querySelector('.add-to-cart-detail');
+                if (footerAddBtn) {
+                    footerAddBtn.setAttribute('data-id', String(dish.id));
+                    footerAddBtn.addEventListener('click', function(e) {
                         e.stopPropagation();
                         addToCart(this.getAttribute('data-id'));
                     });
@@ -258,20 +262,7 @@ function showDishDetail(dishId) {
             dishDetailBody.innerHTML = '<div class="error">加载失败，请重试</div>';
         });
     
-    // 关闭按钮点击事件
-    const closeButton = document.querySelector('.close-dish-detail');
-    if (closeButton) {
-        closeButton.addEventListener('click', function() {
-            dishDetailModal.style.display = 'none';
-        });
-    }
-    
-    // 点击模态框外部关闭
-    window.addEventListener('click', function(e) {
-        if (e.target === dishDetailModal) {
-            dishDetailModal.style.display = 'none';
-        }
-    });
+    // 关闭按钮已在 initDishDetail 中绑定，这里无需重复绑定
 }
 
 // 加载菜品评论
