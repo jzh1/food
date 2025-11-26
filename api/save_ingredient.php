@@ -28,15 +28,28 @@ if ($data) {
         }
         
         // 绑定参数
-        $stmt->bindParam(':name', $data['name'], PDO::PARAM_STR);
-        $stmt->bindParam(':category', $data['category'], PDO::PARAM_STR);
-        $stmt->bindParam(':weight', $data['weight'], PDO::PARAM_STR);
-        $stmt->bindParam(':unit', $data['unit'], PDO::PARAM_STR);
-        $stmt->bindParam(':expiry_date', $data['expiry_date'], PDO::PARAM_STR);
-        $stmt->bindParam(':description', $data['description'], PDO::PARAM_STR);
-        $stmt->bindParam(':image_url', $data['image_url'], PDO::PARAM_STR);
-        $stmt->bindParam(':storage_method', $data['storage_method'], PDO::PARAM_STR);
-        $stmt->bindParam(':status', $data['status'], PDO::PARAM_STR);
+        $name = isset($data['name']) ? trim($data['name']) : '';
+        if ($name === '') {
+            throw new PDOException('食材名称为必填项');
+        }
+        $category = isset($data['category']) && trim($data['category']) !== '' ? trim($data['category']) : '未分类';
+        $weight = isset($data['weight']) && $data['weight'] !== '' ? $data['weight'] : '0';
+        $unit = isset($data['unit']) && trim($data['unit']) !== '' ? trim($data['unit']) : 'kg';
+        $expiry_date = isset($data['expiry_date']) && $data['expiry_date'] !== '' ? $data['expiry_date'] : date('Y-m-d');
+        $description = isset($data['description']) ? trim($data['description']) : null;
+        $image_url = isset($data['image_url']) ? trim($data['image_url']) : null;
+        $storage_method = isset($data['storage_method']) ? trim($data['storage_method']) : null;
+        $status = isset($data['status']) ? trim($data['status']) : '正常';
+
+        $stmt->bindParam(':name', $name, PDO::PARAM_STR);
+        $stmt->bindParam(':category', $category, PDO::PARAM_STR);
+        $stmt->bindParam(':weight', $weight, PDO::PARAM_STR);
+        $stmt->bindParam(':unit', $unit, PDO::PARAM_STR);
+        $stmt->bindParam(':expiry_date', $expiry_date, PDO::PARAM_STR);
+        $stmt->bindParam(':description', $description, PDO::PARAM_STR);
+        $stmt->bindParam(':image_url', $image_url, PDO::PARAM_STR);
+        $stmt->bindParam(':storage_method', $storage_method, PDO::PARAM_STR);
+        $stmt->bindParam(':status', $status, PDO::PARAM_STR);
         
         // 执行查询
         $stmt->execute();

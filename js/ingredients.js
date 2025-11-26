@@ -249,22 +249,25 @@ function saveIngredient() {
     const expiryDate = document.getElementById('ingredient-expiry').value;
     const unit = document.getElementById('ingredient-unit')?.value || 'kg';
     
-    if (!name || !category || !weight || !expiryDate) {
-        alert('请填写必填字段');
+    if (!name) {
+        alert('请填写食材名称');
         return;
     }
     
     // 计算食材状态
     let status = '正常';
-    const expiry = new Date(expiryDate);
-    const now = new Date();
-    const diffTime = expiry - now;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays < 0) {
-        status = '过期';
-    } else if (diffDays <= 90) {
-        status = '临期';
+    if (expiryDate) {
+        const expiry = new Date(expiryDate);
+        const now = new Date();
+        const diffTime = expiry - now;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays < 0) {
+            status = '过期';
+        } else if (diffDays <= 90) {
+            status = '临期';
+        }
+    } else {
+        status = '正常';
     }
     
     // 准备数据
@@ -272,9 +275,9 @@ function saveIngredient() {
         id: currentIngredientId,
         name,
         category,
-        weight,
+        weight: weight || '0',
         unit,
-        expiry_date: expiryDate,
+        expiry_date: expiryDate || '',
         description: document.getElementById('ingredient-description').value.trim(),
         image_url: ingredientImage.value.trim(),
         storage_method: document.getElementById('ingredient-storage').value.trim(),
