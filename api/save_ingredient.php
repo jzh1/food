@@ -33,7 +33,7 @@ if ($data) {
             throw new PDOException('食材名称为必填项');
         }
         $category = isset($data['category']) && trim($data['category']) !== '' ? trim($data['category']) : '未分类';
-        $weight = isset($data['weight']) && $data['weight'] !== '' ? $data['weight'] : '0';
+        $weight = isset($data['weight']) && $data['weight'] !== '' ? number_format((float)$data['weight'], 2, '.', '') : number_format(0, 2, '.', '');
         $unit = isset($data['unit']) && trim($data['unit']) !== '' ? trim($data['unit']) : 'kg';
         $expiry_date = isset($data['expiry_date']) && $data['expiry_date'] !== '' ? $data['expiry_date'] : date('Y-m-d');
         $description = isset($data['description']) ? trim($data['description']) : null;
